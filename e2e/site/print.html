@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh" class="navy">
+<head><meta charset="utf-8"><title>e2e 合成书</title>
+<style>body{font-family:sans-serif;max-width:860px;margin:0 auto;padding:16px}
+.nav-chapters{display:block}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 8px}</style>
+</head>
+<body>
+<div id="mdbook-sidebar">侧栏不该出现在 PDF 里</div>
+<div id="mdbook-menu-bar">菜单栏不该出现</div>
+<script>
+const default_light_theme = "navy";
+const default_dark_theme = "navy";
+const html = document.documentElement;
+function applyTheme(theme){ html.classList.remove('navy'); html.classList.add(theme); }
+applyTheme(default_light_theme);
+</script>
+<script>
+// 确定性 Mermaid 替身：离线可复现，不依赖 CDN。
+// 第 1 张故意做成 6000 单位高（远超 A4 可用高度），用来实测 max-height 钳制；
+// 若钳制失效，底边标记线会触底 → verify 的 clipped 判据必须报错。
+window.mermaid = { initialize: function(){}, run: function(){ return Promise.resolve(); } };
+document.addEventListener('DOMContentLoaded', function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  document.querySelectorAll('pre.mermaid').forEach(function (el, i) {
+    var W = 1600, H = (i === 0) ? 6000 : 700;
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    function el2(tag, attrs) {
+      var n = document.createElementNS(NS, tag);
+      for (var k in attrs) { n.setAttribute(k, attrs[k]); }
+      return n;
+    }
+    svg.appendChild(el2('rect', { x: 6, y: 6, width: W - 12, height: H - 12,
+                                  fill: '#eef3fb', stroke: '#7a9cc6' }));
+    // 底边标记线：被裁切时它一定不在页内
+    svg.appendChild(el2('line', { x1: 20, y1: H - 10, x2: W - 20, y2: H - 10,
+                                  stroke: '#c0392b', 'stroke-width': 3 }));
+    el.textContent = '';
+    el.appendChild(svg);
+    el.setAttribute('data-processed', 'true');
+  });
+});
+</script>
+<main>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ch-one">第一章 概述</h1>
+<p>这是第一章的正文，包含 <code>inline_code</code> 与一个指向 <a href="a/two.html">第二章</a> 的跨章链接。</p>
+<h2 id="sec-one">1.1 小节标题</h2>
+<p>小节里有一条列表：</p>
+<h3 id="sec-one-detail">1.1.1 三级标题（用于检验书签深度）</h3>
+<p>这一节的目的是让书签层级覆盖到 h3，避免 verify 报"书签过浅"。</p>
+<ul><li>列表项一</li><li>列表项二，含 <strong>加粗</strong> 与 <em>斜体</em>。</li></ul>
+<table><thead><tr><th>列 A</th><th>列 B</th></tr></thead>
+<tbody><tr><td>单元格一</td><td>单元格二</td></tr></tbody></table>
+<pre><code class="language-bash">git worktree add ../wt feature   # 这一行注释不该被翻译
+echo "hello"</code></pre>
+<pre class="mermaid">graph TD
+  A[输入] --> B{判断}
+  B -->|是| C[导出 PDF]
+  B -->|否| D[报错退出]</pre>
+<h2 id="sec-two">1.2 另一个小节</h2>
+<p>用于测试分页与空白页检测的段落。</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ch-extra">附录 未收录页</h1>
+<p>这一页不在侧栏目录里，用来检验目录与章节锚点的对齐（应识别出 1 个未收录页）。</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ch-two">第二章 安装</h1>
+<p>安装说明：先安装依赖，再运行脚本。详见 <a href="a/one.html">第一章</a>。</p>
+<h2 id="sec-three">2.1 环境要求</h2>
+<p>需要 Python 3.9 以上。</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ch-three">第三章 使用</h1>
+<p>用法见下例。</p>
+<pre class="mermaid">sequenceDiagram
+  用户->>系统: 请求导出
+  系统-->>用户: 返回 PDF</pre>
+<pre><code class="language-python">def f(x):
+    return x * 2   # 注释保持原样</code></pre>
+</main>
+</body></html>

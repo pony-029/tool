@@ -1,0 +1,31 @@
+# ---- 构建产物与中间态 ----
+harness-pdf-build/
+e2e/build*/
+e2e/out*/
+e2e/*.log
+*.log
+
+# 本地模式下曾经被写进源夹具的生成物（现已改到工作副本，此处仅作兜底）
+e2e/site/print-fixed*.html
+e2e/site/merged*.html
+e2e/site/segments*.jsonl
+
+# ---- 导出的 PDF：体积大，且可由源码完全复现 ----
+*.pdf
+
+# ---- 工具侧工程数据（含会话与记忆，不入公开仓库）----
+.workbuddy/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
